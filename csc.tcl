@@ -1,3 +1,12 @@
+#; If you check on: https://github.com/SebLemery/Tcl-scripts/tree/master 
+#; You will find http.tcl and tls.tcl make sure you install this on your eggdrop
+#; And make sure they are loaded BEFORE csc.tcl It is IMPORTANT!! 
+#-
+#; Like this!
+#; source scripts/tls.tcl
+#; source scripts/http.tcl
+#; source scripts/csc.tcl
+
 package require http 2.7
 package require tls
 
