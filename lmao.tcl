@@ -18,7 +18,7 @@
 set cc(cmdchar) "!"
 
 # This is your channel, the public one, where everyone goes to.
-set cc(mainchan) "#chat"
+set cc(mainchan) "#duckhunt"
 
 # Set the back channel, this channel will have modes +s set automatically
 # Unless you change it in the next setting. 
@@ -26,7 +26,7 @@ set cc(mainchan) "#chat"
 # When bans, kicks and other channel manipulation is done, it will 
 # be sent in this channel. 
 # Note: The command INVITEME will invite you in this channel. useful if +i
-set cc(backchan) "#chat.ops"
+set cc(backchan) "#duckhunt.ops"
 
 # This is the mode that will be set by the bot in your backchannel
 # from the setting above. Usually, +i, +s or +p is ok. 
@@ -38,7 +38,7 @@ set cc(backmode) "+s"
 
 # Script version. Useful to keep track of the latest devlopement of this script.
 # Don't change it unless you hate puppies. Honestly, just leave it intact.
-set cc(version_number) "4.6"
+set cc(version_number) "4.9.1"
 set cc(version) "\002\[lmao.tcl $cc(version_number)\]\002"
 
 ##Binds (n is bot owner, and should have access to everything)
@@ -804,7 +804,7 @@ proc pub_whois {nick uhost handle chan text} {
 	set c_flags [lindex [split [chattr $u_hand $chan] | ] 1]
 	set target_user [finduser $u_hosts]
 	if {[validuser $u_hand]} {
-		puthelp "privmsg $chan :$u_hand is: \[global|local flags: [chattr $u_nick $chan] \] Hostnames: [getuser $u_hand hosts]"
+		puthelp "privmsg $chan :WHOIS results for: \037$u_nick\037 \0033Handle\003: $u_hand \0033Flags\003\00314\(\0034global\|local\00314\)\003: \002[chattr $u_hand $chan]\002 \0033Hostnames\003:\002 [getuser $u_hand hosts]\002"
 		return
 	} 
 	puthelp "privmsg $chan :$u_hand has no access to the bot in this channel yet. To add him, use [string trim $cc(cmdchar)]chattr $u_hand +flags"
