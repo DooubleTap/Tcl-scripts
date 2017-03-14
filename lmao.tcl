@@ -15,7 +15,7 @@
 # Set the cmdchr here, (trigger) that will be used in front of commands
 # For example, if you set it to "!" All commands will be prefixed by !
 # like !op !kick !ban.. If you don't change it, it will be .op .kick .bab
-set cc(cmdchar) "!"
+set cc(cmdchar) "."
 
 # This is your channel, the public one, where everyone goes to.
 set cc(mainchan) "#duckhunt"
@@ -38,7 +38,7 @@ set cc(backmode) "+s"
 
 # Script version. Useful to keep track of the latest devlopement of this script.
 # Don't change it unless you hate puppies. Honestly, just leave it intact.
-set cc(version_number) "4.9.1"
+set cc(version_number) "5.0"
 set cc(version) "\002\[lmao.tcl $cc(version_number)\]\002"
 
 ##Binds (n is bot owner, and should have access to everything)
