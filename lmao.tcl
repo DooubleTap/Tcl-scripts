@@ -26,7 +26,7 @@ set cc(mainchan) "#duckhunt"
 # When bans, kicks and other channel manipulation is done, it will 
 # be sent in this channel. 
 # Note: The command INVITEME will invite you in this channel. useful if +i
-set cc(backchan) "#duckhunt.ops"
+set cc(backchan) "#sebastien"
 
 # This is the mode that will be set by the bot in your backchannel
 # from the setting above. Usually, +i, +s or +p is ok. 
@@ -38,7 +38,7 @@ set cc(backmode) "+s"
 
 # Script version. Useful to keep track of the latest devlopement of this script.
 # Don't change it unless you hate puppies. Honestly, just leave it intact.
-set cc(version_number) "5.0"
+set cc(version_number) "4.9.1"
 set cc(version) "\002\[lmao.tcl $cc(version_number)\]\002"
 
 ##Binds (n is bot owner, and should have access to everything)
@@ -199,26 +199,24 @@ proc help:pub {nick host hand text} {
 		puthelp "NOTICE $nick :Set your infoline on the bot, set to \002none\002 to remove it"
 	} elseif {$htext eq "adduser"} {
 		puthelp "NOTICE $nick :Try: \002[string trim $cc(cmdchar)]adduser <handle> \[*!*@host.name.here\]"
-		puthelp "NOTICE $nick :add a user to the bot, handle should be 9chr long, and if no host is specified, i will set a weird one for you."
+		puthelp "NOTICE $nick :Add a user to the bot, handle should be 9chr long, and if no host is specified, i will set a weird one for you."
 	} elseif {$htext eq "deluser"} {
 		puthelp "NOTICE $nick :Try: \002[string trim $cc(cmdchar)]deluser <handle>"
 		puthelp "NOTICE $nick :Removes a user from the bot's database"
-	} elseif {$htext eq "showcommands"} { 
-		putquick "NOTICE $nick :\002Flag v\002 voice devoice"
-		putquick "NOTICE $nick :\002Flag o\002 op deop voice devoice kick ban unban topic"
+	} else {
+		putquick "NOTICE $nick :SYNTAX: HELP \[command\] - EXAMPLE /msg $botnick help adduser"
+		putquick "NOTICE $nick :Here is a list of available commands!"
+		putquick "NOTICE $nick :\002Flag v\002 voice devoice - \002Flag o\002 op deop voice devoice kick ban unban topic"
 		putquick "NOTICE $nick :\002Flag m\002 blacklist whitelist adduser  deluser chattr"
 		putquick "NOTICE $nick :\002Flag n\002 botnick comeback cycle join part save jump rehash restart away back global"
 		putquick "NOTICE $nick :\002Flag *\002 whois version info"
-	} else {
-		putquick "NOTICE $nick :SYNTAX: HELP \[command\]"
-		putquick "NOTICE $nick :EXAMPLE /msg $botnick help showcommands"
   }
 }
 
 proc pub_do_bot {nick host hand channel text} {
 	puthelp "NOTICE $nick :The trigger for commands is [string trim $cc(cmdchar)] so [string trim $cc(cmdchar)]op [string trim $cc(cmdchar)]voice [string trim $cc(cmdchar)]kick..."
 	puthelp "NOTICE $nick :The main support channel for the bot is [string trim $cc(backchan)]"
-        puthelp "NOTICE $nick :See:\002 /msg $botnick help allcommands\002 for help"
+        puthelp "NOTICE $nick :See:\002 /msg $botnick help\002 for help"
         return
 }
 proc dobinddcckeepalive {handle idx text} {
