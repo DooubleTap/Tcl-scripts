@@ -6,6 +6,10 @@
 #; source scripts/tls.tcl
 #; source scripts/http.tcl
 #; source scripts/csc.tcl
+#;
+#; Original credits to BLaCkShaDoW.
+#; Sebastien Fixed SSL issue and tranlated to english.
+#;
 
 package require http 2.7
 package require tls
@@ -105,4 +109,4 @@ proc wt:filter {x {y ""} } {
 ################################################## ###############################
 
 
-putlog "Check CService Channel Aplication check from blackshadow, updated translated and fixed for SSL by Sebastien"
+putlog "Check CService Channel Aplication check by Sebastien @ UnderNET"
