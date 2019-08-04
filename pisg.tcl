@@ -1,6 +1,5 @@
-# Author: paultwang
-# Date: 2010-03-17
-# Requested by: xplo@Undernet
+# Author: paultwang Date: 2010-03-17 For: Seb @ Undernet
+# This will ONLY work with PISG available at: https://github.com/PISG/pisg
 
 # This is where pisg.cfg is stored
 set pp_confname "/home/eggy/pisg-0.73/pisg.cfg"
@@ -18,7 +17,7 @@ set pp_baseoutputdir "/var/www/html/s"
 set pp_outputsuffix ".html"
 
 # Set IRC network name
-set pp_networkname "freenode"
+set pp_networkname "undernet"
 
 # Set log file format
 set pp_format "eggdrop"
@@ -26,9 +25,9 @@ set pp_format "eggdrop"
 # NOTE: When you add channel, it will make eggdrop start logging that channel
 
 
-bind pub m|m !statsadd pub_pisgadd
-bind pub m|m !statsdel pub_pisgdel
-bind pub m|m !statsreaddall pub_pisgreaddall
+bind pub m|m !pisgadd pub_pisgadd
+bind pub m|m !pisgdel pub_pisgdel
+bind pub m|m !pisgreaddall pub_pisgreaddall
 bind join - * join_autoaddbotselfjoin
 proc pub_pisgadd {n u h c a} {
  if {[string length $a] == 0} {
