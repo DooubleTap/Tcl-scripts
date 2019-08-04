@@ -1,7 +1,7 @@
-# Uworld/EVA - $Id: eva.tcl  v2.0 - Creation date: Monday 5th of January 2008
+# Uworld/EVA - $Id: eva.tcl  v2.1 - Creation date: Monday 5th of January 2008
 # Original Author: Cesar https://sourceforge.net/u/cesarxzf/ 
 #
-# updated: Seb E-Mail: seblemery@gmail.com 6/2/2019
+# updated: Seb E-Mail: seblemery@gmail.com 8/4/2019
 #
 # Compatible P10 extended numeric (ircu2.10.10.*+)
 # Using Allmost Everything that UWORLD normally does, and LOTS more.
@@ -333,7 +333,7 @@ catch {
       set k $numserver($pref)
     } elseif [info exists nickn($pref)] {set k $nickn($pref)} else {return 0}
 
-    if {[lindex $arg 3]==":VERSION"} {send "$uw(num)uuu O $pref :VERSION eva.tcl 2.0 "}
+    if {[lindex $arg 3]==":VERSION"} {send "$uw(num)uuu O $pref :VERSION eva.tcl 2.1 "}
 #add for antispam Sun 7/12/03 -Cesar
     if {[string first \$ $tn] == -1} {
      # There is a $ in the target.. that means global notice, so the next line will fail.
