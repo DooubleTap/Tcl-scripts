@@ -1,58 +1,91 @@
-#############################################################################
-# Script info:
-#  Uworld/EVA for ircu 2008
-#  This Bot is a MUST on any ircu/Nefarious2 network. It will allow you to
-#  see every join/part/nick/kick/connections/disconnections happening.
-#  I recomment not to allow every staff members, but only network admins
-#  that you 100% trust, to join the channel where EVA will run. 
-#############################################################################    
-# Credits:
-#  Version 1 : Monday January 5 2008
-#  Authors: Cesar - Progs E-mail: (unknown PM me for edit on GitHub)
-#  Editor: Seb/xplorer E-Mail: seb@abovenet.org
-#############################################################################
+# Uworld/EVA - $Id: eva.tcl  v2.0 - Creation date: Monday 5th of January 2008
+# Original Author: Cesar https://sourceforge.net/u/cesarxzf/ 
+#
+# updated: Seb E-Mail: seblemery@gmail.com 6/2/2019
+#
 # Compatible P10 extended numeric (ircu2.10.10.*+)
-# Using Allmost Everything that UWORLD normally does.
-# (gline/kill/kick/mode/badchan/xwho/compte-clones/trust/clone|collide)
-# Flags:
-# O (mode serveur, xwho, kick)
-# K (kill, chankill, hostkill)
-# G (gline)
-# N (Adminstration: connection, badchans)
-# Z (Allow Actions on IRCOPS)
-# P (Clones Controls)
+# Using Allmost Everything that UWORLD normally does, and LOTS more.
+#
+# Abovenet.org is used as an example, it's in honor of the network where this
+# script is being maintained and used. make sure to edit EVERYTHING to match
+# your own informations. join us on irc.abovenet.org if you have questions.
+#
+# Give flags to all the opers of the network. (with .chattr)
+# Available Flags for Eva:
+#   N (NetAdmin: connection, badchans)
+#   O (Oper: server mode, xwho, kick)
+#   K (Oper: kill, chankill, hostkill)
+#   G (Oper: gline)
+#   Z (God?: Allow Actions on opers)
+#   P (Devs: Clones Control)
+# The most common flags to give to regular opers are +OKG
+# +N is for network admin
+# +Z Should never be used
+# +P Should be given to scripters, and devs only.
 #############################################################################
-# You Are Required to add a connection Block on the Hub So Eva Will Launch  #
+# Run this tcl on a fresh install of eggdrop with no other added scripts
+# MAKE SURE you can /ctcp botnick chat (from irc) or telnet the bot.
+# When in DCC. type .eva & .xhelp all
 #############################################################################
+# Here is an example of the connect block you should have on your ircd.
+#
+# Connect {
+#   name = "eva.yournet.org";
+#   host = "111.222.333.444";
+#   password = "hunter2";
+#   class = "Server";
+#   hub = "*";
+#   autoconnect = yes;
+#   port = 4400;
+# };
+#
+# Add: name = "eva.abovenet.org";  
+# to the Uworld { } Block
+# Add:  "HUB"="TRUE";
+# In the fratures { } Block
+# /rehash
+#############################################################################
+### Start Editing
 
-### Configuration
+# UWorld's Server Name (add this in the Uworld { } Block)
+set uw(serv) eva.yournet.org
+# Server info line
+set uw(sinfo) "I see you"
+# The name of the server that will host Eva
+set uw(rserv) Hub.server.uplink
 
-#UWorld's Server Name
-set uw(serv) Hub.Network.Org
-set uw(sinfo) "Acknowledge"
-#The name of the server that will have UW/Eva
-set uw(rserv) EVA.NETWORK.ORG
-#IP,port,pass UW/EVA's Server.
-set uw(link) **********
-set uw(port) **********
-set uw(pass) **********
-set uw(chan) #Eva
+# This info must match the connect block on your ircd
+#server's ip
+set uw(link) ip.to.connect.to
+#server connect port
+set uw(port) 4400
+#connect block password
+set uw(pass) youruplinkpwd
+# The Service bot will spam this channel
+set uw(chan) #admins
+# Quit reason
 set uw(defr) "Forced Quit"
-set uw(num) F3
-#Nick!ident@host
+# Random numeric (has to be different on every servers)
+set uw(num) AE
+
+# Service Bot informations
 set uw(nick) EVA
-set uw(host) Eva.Service.Bot
-set uw(ident) Eva
-set uw(rname) "To Protect And To Serv"
-set uw(chanclone) #EVA
-#Max amount of legal clones before gline
-set uw(clone) 5
+set uw(host) yournet.org
+set uw(ident) Eva2
+set uw(rname) "I can see through your clothes"
+# The Service bot will join this channel
+set uw(chanclone) #admins
+
+# Max amount of legal clones before gline (3 is suggested)
+set uw(clone) 3
+# Time before removing the gline
 set uw(glineclonetps) 3600
+# gline reason
 set uw(glinecloneraison) "Too many connections from your host, ghost"
-#temps d'xclose en minutes (0 > Does not leave unless its splitted)
+# xclose time in minutes (0 = does not leave unless splitted)
 set uw(xclosetime) 30
 
-###  Proceeds
+# STOP EDITING
 
 # Server life
 
@@ -105,14 +138,14 @@ catch {
         send "$uw(num)uuu O $nm :\[\0034Warning\3\] You possess currently  $clone($host) One more clone and you host will been glined."
       }
 
-      sendlog "> CONNECT $nick $id@$host ($numserver($pref) Clones: \[$clone($host)\])"
+      sendlog "> \00312CONNECT\003 $nick $id@$host ($numserver($pref) Clones: \[$clone($host)\])"
     } else {
       set anick $nickn($pref)
       set nnick [lindex $arg 2]
       set nickn($pref) $nnick
       set num($nnick) $pref
       unset num($anick)
-      sendlog "= NICK $anick -> $nnick"
+      sendlog "= \00308NICK\003 $anick -> $nnick"
     }
     return 0
   }
@@ -120,29 +153,29 @@ catch {
     global nickn
     set lnick $nickn($pref)
     decrclone $lnick
-    sendlog "< QUIT by $lnick [join [lrange $arg 2 end]]"
+    sendlog "< \00304QUIT\003 by $lnick [join [lrange $arg 2 end]]"
     return 0
   }
   if {$event=="J"} {
     global nickn
-    sendlog "> JOIN [lindex $arg 2] by $nickn($pref)"
+    sendlog "> \00303JOIN\003 [lindex $arg 2] by $nickn($pref)"
     foreach  c [split [lindex $arg 2] ,] {chckchan $c $pref}
     return 0
   }
   if {$event=="K"} {
     global nickn
     if [info exists numserver($pref)] {set k $numserver($pref)} else {set k $nickn($pref)}
-    sendlog "< KICK $nickn([lindex $arg 3]) by $k on [lindex $arg 2] [join [lrange $arg 4 end]]"
+    sendlog "< \00305KICK\003 $nickn([lindex $arg 3]) by $k on [lindex $arg 2] [join [lrange $arg 4 end]]"
     return 0
   }
   if {$event=="L"} {
     global nickn
-    sendlog "< PART [lindex $arg 2] by $nickn($pref) [join [lrange $arg 3 end]]"
+    sendlog "< \00304PART\003 [lindex $arg 2] by $nickn($pref) [join [lrange $arg 3 end]]"
     return 0
   }
   if {$event=="C"} {
     global nickn
-    sendlog "> JOIN [lindex $arg 2] by $nickn($pref) (Creating)"
+    sendlog "> \00309CREATE\003 [lindex $arg 2] by $nickn($pref)"
     foreach  c [split [lindex $arg 2] ,] {chckchan $c $pref}
     return 0
   }
@@ -197,7 +230,7 @@ catch {
 #   discriminate if source is either a server or a nick
     if [info exists numserver($pref)] {set k $numserver($pref)} else {set k $nickn($pref)}
     if [info exists nickn([lindex $arg 2])] {
-      sendlog "< KILL de $k by $nickn([lindex $arg 2]) :[join [lrange $arg 4 end]]"
+      sendlog "< \00305KILL\003from $k by $nickn([lindex $arg 2]) :[join [lrange $arg 4 end]]"
       decrclone $nickn([lindex $arg 2])
       if {[lindex $arg 2] == "$uw(num)uuu"} {conuw}
     }
@@ -211,12 +244,12 @@ catch {
       foreach u [lrange $arg 4 end] {
         if [info exists nickn($u)] {lappend tmp $nickn($u)} else {lappend tmp $u}
       }
-      sendlog "= MODE [join [lrange $arg 2 3]] [join $tmp] by $k"
+      sendlog "= \00306MODE\003 [join [lrange $arg 2 3]] [join $tmp] by $k"
       return 0
     }
 
     global clone
-    sendlog "= MODE [join [lrange $arg 2 end]] by $nickn($pref)"
+    sendlog "= \0036MODE\003 [join [lrange $arg 2 end]] by $nickn($pref)"
     if [string match *+o* [lindex $arg 3]] {
       set oper($pref) "1 [unixtime]"
       return 0
@@ -300,7 +333,7 @@ catch {
       set k $numserver($pref)
     } elseif [info exists nickn($pref)] {set k $nickn($pref)} else {return 0}
 
-    if {[lindex $arg 3]==":VERSION"} {send "$uw(num)uuu O $pref :VERSION This is Just An illusion! "}
+    if {[lindex $arg 3]==":VERSION"} {send "$uw(num)uuu O $pref :VERSION eva.tcl 2.0 "}
 #add for antispam Sun 7/12/03 -Cesar
     if {[string first \$ $tn] == -1} {
      # There is a $ in the target.. that means global notice, so the next line will fail.
@@ -310,20 +343,20 @@ catch {
   }
   if {$event == "AD" || $event == "V"} {
     global admin nickn
-    send "$uw(num) 258 $pref :Informations Adminstratives/Techniques on $uw(serv)"
-    send "$uw(num) 258 $pref :$uw(serv) is a service UWorld TCL Modified By xplorer for irc.Boomnet.org"
-    send "$uw(num) 258 $pref :Adminis: $admin"
-    sendlog "= $event par $nickn($pref)"
+    send "$uw(num) 258 $pref :Services information $uw(serv)"
+    send "$uw(num) 258 $pref :$uw(serv) is a network service bot designes to monitor small networks"
+    send "$uw(num) 258 $pref :Admins: $admin"
+    sendlog "= $eventby $nickn($pref)"
     return 0
   }
   if {$event == "W"} {
     if ![strcasecmp [string trim [lindex $arg 3] :] $uw(nick)] {
       send "$uw(num) 311 $pref $uw(nick) $uw(ident) $uw(host) * :$uw(rname)"
-      send "$uw(num) 319 $pref $uw(nick) :Somewhere Sometimes"
+      send "$uw(num) 319 $pref $uw(nick) :This looks like i am in a lot of channels"
       send "$uw(num) 312 $pref $uw(nick) $uw(serv) :$uw(sinfo)"
-      send "$uw(num) 313 $pref $uw(nick) :is a NetWork Service"
+      send "$uw(num) 313 $pref $uw(nick) :is a NetWork Ninja"
       send "$uw(num) 317 $pref $uw(nick) [expr [unixtime] - $uw(uptime)] $uw(uptime) :idle time, signon time"
-      send "$uw(num) 318 $pref $uw(nick) :end of  /WHOIS."
+      send "$uw(num) 318 $pref $uw(nick) :end of  /WHOIS. you stalker"
       return 0
     }
   }
@@ -378,7 +411,7 @@ proc fcreate {ff} {set f [open $ff w];close $f}
 proc dur {t} {return [duration [expr [unixtime]-$t]]}
 
 proc strcasecmp {a b} {return [string compare -nocase $a $b]}
-proc strc {n} {set s " ";return [string range $s 1 $n]}
+proc strc {n} {set s " ????????????????????????????????";return [string range $s 1 $n]}
 
 if ![file exist gline.box] {fcreate gline.box}
 if {[file exist trusted.list] && ![info exists trust(hostlist)]} {
@@ -409,7 +442,8 @@ if ![info exists uw(BadChan)] {set uw(BadChan) ""}
 if ![info exists trust(hostlist)] {set trust(hostlist) ""}
 
 #ss procs usefull
-proc sendlog {text} {global uw;putdcc $uw(idx) "$uw(num)uuu P $uw(chan) :\[[strftime "%H:%M:%S"]\] $text"}
+proc sendlog {text} {global uw;putdcc $uw(idx) "$uw(num)uuu P $uw(chan) :$text"}
+
 
 proc send {argl} {
   global uw nickn oper num numserver
@@ -429,9 +463,9 @@ proc send {argl} {
     global clone
     sendlog "> NICK [lindex $arg 2] [lindex $arg 5]@[lindex $arg 6] ($uw(serv) Clones \[$clone([lindex $arg 6])\])"
   }
-  if {$event=="J"} {sendlog "> JOIN [lindex $arg 2] by $nickn($pref)"}
-  if {$event=="L"} {sendlog "< PART [lindex $arg 2] by $nickn($pref) [join [lrange $arg 3 end]]"}
-  if {$event=="Q"} {sendlog "< QUIT $nickn($pref) [join [lrange $arg 2 end]]"}
+  if {$event=="J"} {sendlog "> \00303JOIN\003 [lindex $arg 2] by $nickn($pref)"}
+  if {$event=="L"} {sendlog "< \00304PART\003 [lindex $arg 2] by $nickn($pref) [join [lrange $arg 3 end]]"}
+  if {$event=="Q"} {sendlog "< \00304QUIT\003 $nickn($pref) [join [lrange $arg 2 end]]"}
   if {$event=="M"} {
     if [info exists numserver($pref)] {set k $numserver($pref)} else {set k $nickn($pref)}
     if {[string index [lindex $arg 2] 0] == "#"} {
@@ -439,8 +473,8 @@ proc send {argl} {
       foreach u [lrange $arg 4 end] {
         if [info exists nickn($u)] {lappend tmp $nickn($u)} else {lappend tmp $u}
       }
-      sendlog "= MODE [join [lrange $arg 2 3]] [join $tmp] by $k"
-    } else {sendlog "= MODE [join [lrange $arg 2 end]] by $k"}
+      sendlog "= \0037MODE\003 [join [lrange $arg 2 3]] [join $tmp] by $k"
+    } else {sendlog "= \0037MODE\003 [join [lrange $arg 2 end]] by $k"}
   }
   putdcc $uw(idx) $argl
 }
@@ -473,7 +507,7 @@ global uw
     putdcc $uw(idx) "$uw(num)uuu K $chan $nick :Channel Is Closed!"
     if {$uw(xclosetime) != 0} {timer $uw(xclosetime) [list putdcc $uw(idx) "$uw(num)uuu L $chan :Freeing BadChannels"]}
     dccbroadcast "Illegal join by $nickn($nick) On $chan"
-    sendlog "> CLOSING $chan by $uw(nick) (Cleaning Channel)"
+    sendlog "> \0034BADCHAN\003 $chan by $uw(nick) (Closing Channel)"
     return 0
   }
   return 0
@@ -539,7 +573,7 @@ proc checkgline {} {
   fwrite gline.box $t
   return 0
 }
-
+ 
 proc checkhost {host} {
   if ![string match *@* $host] {
     if {[string index $host 0] == "."} {set host *$host}
@@ -673,7 +707,7 @@ proc expire {time} {
   set date [ctime [expr $time + [unixtime]]]
   set da "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec"
   set n "[split [lindex $date 3] :]"
-  return "expire the [lindex $date 2]/[expr [lsearch $da [lindex $date 1]] + 1]/[lindex $date 4] ・[lindex $n 0]:[lindex $n 1]"
+  return "expire the [lindex $date 2]/[expr [lsearch $da [lindex $date 1]] + 1]/[lindex $date 4] ·[lindex $n 0]:[lindex $n 1]"
 }
 
 #[3/3]
@@ -1216,7 +1250,7 @@ global uw
   if {$result==-1} {
     append uw($t) " $bd"
     set glist [fread $f]
-    lappend glist "$bd - add the [strftime "%d %b %Y ・%H:%M"] by $hand ($r)"
+    lappend glist "$bd - add the [strftime "%d %b %Y ·%H:%M"] by $hand ($r)"
     fwrite $f  $glist
     putdcc $idx "\[+$t\] -> $bd added success! ($r)"
     return 1
@@ -1304,11 +1338,11 @@ proc trust:show {idx h} {
 global trust
   if {$trust(expire!$h) != 0} {
     putdcc $idx "Host: $h \[[llength [lindex [getnicks *@$h] 0]]/$trust(clones!$h)\] \
-      Added by $trust(by!$h) the [strftime "%d %b %Y ・%H:%M" $trust(ts!$h)] for \
+      Added by $trust(by!$h) the [strftime "%d %b %Y ·%H:%M" $trust(ts!$h)] for \
       [duration $trust(expire!$h)] Comment: $trust(comment!$h)"
   } else {
     putdcc $idx "Host: $h \[[llength [lindex [getnicks *@$h] 0]]/$trust(clones!$h)\] \
-      Added by $trust(by!$h) the [strftime "%d %b %Y ・%H:%M" $trust(ts!$h)] \
+      Added by $trust(by!$h) the [strftime "%d %b %Y ·%H:%M" $trust(ts!$h)] \
       Comment: $trust(comment!$h)"
   }
 }
@@ -1343,7 +1377,7 @@ proc trust:add {hand idx arg} {
   } elseif {$expire != "0"} {set expire [timed $expire]}
 
   if [info exists trust(clones!$host)] {
-    putdcc $idx "The host $host is  protected yet(Added the [strftime "%d %b %Y ・%H:%M" $trust(ts!$host)] par $trust(by!$host)), updating..."
+    putdcc $idx "The host $host is  protected yet(Added the [strftime "%d %b %Y ·%H:%M" $trust(ts!$host)] par $trust(by!$host)), updating..."
   } elseif {[set tmp [isindb $trust(hostlist) $host]] != -1} {
     putdcc $idx "$host is allready cover by another protection:"
     trust:show $idx $tmp
@@ -1402,6 +1436,7 @@ global trust
 }
 
 
+#putserv "PRIVMSG $::uw(chan)
 bind dcc - xhelp xhelp
 
 proc xhelp {h i text} {
@@ -1409,6 +1444,7 @@ proc xhelp {h i text} {
   set cmd [string tolower [lindex [split $text] 0]]
   if {$cmd == "" || $cmd == "all"} {
     putdcc $i "Visualisation of commands $botnick: (Only Commands than You have access)"
+    putdcc $i "To see an extended lis of commands, type: .xhelp all"
     putdcc $i "All : xstatus operlist xadmin"
     if [matchattr $h O] {putdcc $i "Flag +O : xtrustlist xbadchan  xexchan xop xdeop xmode xkick xwho xban xclearmodes xlclone"}
     if [matchattr $h K] {putdcc $i "Flag +K : xkill wallops xkickall xclose xleave xjoin"}
@@ -1469,7 +1505,7 @@ proc xhelp {h i text} {
     "xconnect" {putdcc $i "$s .xconnect \[-s\]\n$u Reconnect server $uw(serv) and $uw(nick)"}
     "xstatus" {putdcc $i "$s .xstatus\n$u Give some info about Uworld."}
     "xopersend" {putdcc $i "$s .xopersend <message>\n$u Send message to ALL IRCops connected."}
-    "xlclone" {putdcc $i "$s .xlclone \[-l\] \[nombre\]\n$u Return list of Hosts clones  (d馭aut: 2) IF '-l' is tell, list of nicks"}
+    "xlclone" {putdcc $i "$s .xlclone \[-l\] \[nombre\]\n$u Return list of Hosts clones  (d?aut: 2) IF '-l' is tell, list of nicks"}
     "xclearmodes" {putdcc $i "$s .xclearmodes <chan>\n$u Remove tall modes  from chan (+kblipms) and do deopall"}
     "xopall" {putdcc $i "$s .xopall <#chan>\n$u Op All Users non op on chan specified\n$e .xopall #opless"}
     "xdeopall" {putdcc $i "$s .xdeopall <#chan>\n$u DeOp All Users op on chan specified\n$e .xdeopall #opless"}
@@ -1504,7 +1540,7 @@ global uw botnick
 bind dcc - xadmin xadmin
 proc xadmin {hand idx arg} {
   set s [strc 6]
-  putdcc $idx "Hand[strc 5] Logu・$s Nick-Actuel [strc 21] (Flags) Last Seen"
+  putdcc $idx "Hand[strc 5] Logu·$s Nick-Actuel [strc 21] (Flags) Last Seen"
   foreach h [userlist O] {
     if [valididx [hand2idx $h]] {set e "3YES"} else {set e "4NO"}
     if {[hand2nick $h]!=""} {set n [hand2nick $h]} else {set n "N/A"}
@@ -1569,7 +1605,7 @@ proc xstats {hand idx arg} {
   return 0
 }
 
-putlog "Eva.tcl LOADED use '.xhelp' for command Listing."
+putlog "\00314\[\003eva.tcl LOADED - Type '\0037.xhelp\003' to see the available commands\00314\]\003"
 
 if {![info exists uw(idx)]} {
  putlog "Service not detected, starting!"
